@@ -32,6 +32,11 @@
         transform: translateX(-100%);
         transition: transform 200ms;
       }
+
+      #reset {
+        display: block;
+        margin: 16px auto;
+      }
     </style>
   </head>
   <body>
@@ -41,21 +46,30 @@
       <div class="swipe-kar__swipe-indicator"></div>
     </div>
 
+    <button type="button" id="reset">reset</button>
+
     <script>
       const $swipeDiv = document.querySelector(".swipe-kar");
       const $swipeDivKaContent = document.querySelector(".swipe-kar__content");
       const $swipeIndicator = document.querySelector(".swipe-kar__swipe-indicator");
 
+      const initialContent = $swipeDivKaContent.textContent;
+
       let startX;
+      let swipeComplete = false;
 
       // initialize swipe
       $swipeDiv.addEventListener("mousedown", (e) => {
+        if (swipeComplete) {
+          return;
+        }
+
         startX = e.clientX;
       });
 
       // handle swipe on mouse move
       $swipeDiv.addEventListener("mousemove", (e) => {
-        if (typeof startX !== "number") {
+        if (typeof startX !== "number" || swipeComplete) {
           return;
         }
 
@@ -64,6 +78,7 @@
           $swipeIndicator.style.transform = `translateX(0)`;
           $swipeDivKaContent.textContent = "yay!! swipe ho gaya bhai.";
           startX = undefined;
+          swipeComplete = true;
           return;
         }
 
@@ -91,7 +106,6 @@
         }
 
         const diff = endX - startX;
-        console.log("diff", diff);
 
         if (diff > 50) {
           console.log("right swipe");
@@ -101,6 +115,13 @@
           return "left";
         }
       }
+
+      document.getElementById("reset").addEventListener("click", () => {
+        startX = undefined;
+        swipeComplete = false;
+        $swipeIndicator.style.transform = `translateX(-100%)`;
+        $swipeDivKaContent.textContent = initialContent;
+      });
     </script>
   </body>
 </html>
