@@ -69,13 +69,15 @@
         $swipeDiv.addEventListener("touchend", handleEnd);
       } else {
         // initialize swipe
-        $swipeDiv.addEventListener("mousedown", handleStart);
+        // $swipeDiv.addEventListener("mousedown", handleStart);
 
         // handle swipe on mouse move
         $swipeDiv.addEventListener("mousemove", handleMove);
 
+        $swipeDiv.addEventListener("mouseout", handleEnd);
+
         // reset
-        $swipeDiv.addEventListener("mouseup", handleEnd);
+        // $swipeDiv.addEventListener("mouseup", handleEnd);
       }
 
       function handleStart(e) {
@@ -96,7 +98,11 @@
       function handleMove(e) {
         e.preventDefault();
 
-        if (typeof startX !== "number" || swipeComplete) {
+        if (swipeComplete) {
+          return;
+        }
+
+        if (e.touches && typeof startX !== "number") {
           return;
         }
 
@@ -105,6 +111,11 @@
           x = e.touches[0].clientX;
         } else {
           x = e.clientX;
+        }
+
+        if (typeof startX !== "number") {
+          startX = x;
+          return;
         }
 
         // if it's swiped, then complete the action
@@ -140,6 +151,9 @@
         startX = undefined;
       }
 
+      const RIGHT_SWIPE_THRESHOLD = 50;
+      const LEFT_SWIPE_THRESHOLD = -RIGHT_SWIPE_THRESHOLD;
+
       function detectSwipe(startX, endX) {
         if (typeof startX !== "number" || typeof endX !== "number") {
           return null;
@@ -147,10 +161,10 @@
 
         const diff = endX - startX;
 
-        if (diff > 50) {
+        if (diff > RIGHT_SWIPE_THRESHOLD) {
           console.log("right swipe");
           return "right";
-        } else if (diff < -50) {
+        } else if (diff < LEFT_SWIPE_THRESHOLD) {
           console.log("left swipe");
           return "left";
         }
