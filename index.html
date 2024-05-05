@@ -58,23 +58,57 @@
       let startX;
       let swipeComplete = false;
 
-      // initialize swipe
-      $swipeDiv.addEventListener("mousedown", (e) => {
+      if (navigator.maxTouchPoints > 0) {
+        // initialize swipe
+        $swipeDiv.addEventListener("touchstart", handleStart);
+
+        // handle swipe on mouse move
+        $swipeDiv.addEventListener("touchmove", handleMove);
+
+        // reset
+        $swipeDiv.addEventListener("touchend", handleEnd);
+      } else {
+        // initialize swipe
+        $swipeDiv.addEventListener("mousedown", handleStart);
+
+        // handle swipe on mouse move
+        $swipeDiv.addEventListener("mousemove", handleMove);
+
+        // reset
+        $swipeDiv.addEventListener("mouseup", handleEnd);
+      }
+
+      function handleStart(e) {
+        let x;
+        if (e.touches && e.touches[0]) {
+          x = e.touches[0].clientX;
+        } else {
+          x = e.clientX;
+        }
+
         if (swipeComplete) {
           return;
         }
 
-        startX = e.clientX;
-      });
+        startX = x;
+      }
 
-      // handle swipe on mouse move
-      $swipeDiv.addEventListener("mousemove", (e) => {
+      function handleMove(e) {
+        e.preventDefault();
+
         if (typeof startX !== "number" || swipeComplete) {
           return;
         }
 
+        let x;
+        if (e.touches && e.touches[0]) {
+          x = e.touches[0].clientX;
+        } else {
+          x = e.clientX;
+        }
+
         // if it's swiped, then complete the action
-        if (detectSwipe(startX, e.clientX) === "right") {
+        if (detectSwipe(startX, x) === "right") {
           $swipeIndicator.style.transform = `translateX(0)`;
           $swipeDivKaContent.textContent = "yay!! swipe ho gaya bhai.";
           startX = undefined;
@@ -83,22 +117,28 @@
         }
 
         // otherwise keep moving the indicator
-        const diff = e.clientX - startX;
+        const diff = x - startX;
         $swipeIndicator.style.transform = `translateX(calc(-100% + ${diff}px))`;
-      });
+      }
 
-      // reset
-      $swipeDiv.addEventListener("mouseup", (e) => {
+      function handleEnd(e) {
         if (typeof startX !== "number") {
           return;
         }
 
-        if (!detectSwipe(startX, e.clientX)) {
+        let x;
+        if (e.touches && e.touches[0]) {
+          x = e.touches[0].clientX;
+        } else {
+          x = e.clientX;
+        }
+
+        if (!detectSwipe(startX, x)) {
           $swipeIndicator.style.transform = `translateX(-100%)`;
         }
 
         startX = undefined;
-      });
+      }
 
       function detectSwipe(startX, endX) {
         if (typeof startX !== "number" || typeof endX !== "number") {
