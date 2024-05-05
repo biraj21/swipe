@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>swipe kar bhai</title>
+
+    <style>
+      .swipe-kar {
+        margin: 32px auto 0;
+        height: 100px;
+        width: 250px;
+        border: 1px solid lightcoral;
+        border-radius: 8px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        user-select: none;
+        position: relative;
+        overflow: hidden;
+      }
+      .swipe-kar__content {
+        z-index: 1;
+      }
+      .swipe-kar__swipe-indicator {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: lightcoral;
+        transform: translateX(-100%);
+        transition: transform 200ms;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="swipe-kar">
+      <span class="swipe-kar__content">right swipe kar bhai</span>
+
+      <div class="swipe-kar__swipe-indicator"></div>
+    </div>
+
+    <script>
+      const $swipeDiv = document.querySelector(".swipe-kar");
+      const $swipeDivKaContent = document.querySelector(".swipe-kar__content");
+      const $swipeIndicator = document.querySelector(".swipe-kar__swipe-indicator");
+
+      let startX;
+
+      // initialize swipe
+      $swipeDiv.addEventListener("mousedown", (e) => {
+        startX = e.clientX;
+      });
+
+      // handle swipe on mouse move
+      $swipeDiv.addEventListener("mousemove", (e) => {
+        if (typeof startX !== "number") {
+          return;
+        }
+
+        // if it's swiped, then complete the action
+        if (detectSwipe(startX, e.clientX) === "right") {
+          $swipeIndicator.style.transform = `translateX(0)`;
+          $swipeDivKaContent.textContent = "yay!! swipe ho gaya bhai.";
+          startX = undefined;
+          return;
+        }
+
+        // otherwise keep moving the indicator
+        const diff = e.clientX - startX;
+        $swipeIndicator.style.transform = `translateX(calc(-100% + ${diff}px))`;
+      });
+
+      // reset
+      $swipeDiv.addEventListener("mouseup", (e) => {
+        if (typeof startX !== "number") {
+          return;
+        }
+
+        if (!detectSwipe(startX, e.clientX)) {
+          $swipeIndicator.style.transform = `translateX(-100%)`;
+        }
+
+        startX = undefined;
+      });
+
+      function detectSwipe(startX, endX) {
+        if (typeof startX !== "number" || typeof endX !== "number") {
+          return null;
+        }
+
+        const diff = endX - startX;
+        console.log("diff", diff);
+
+        if (diff > 50) {
+          console.log("right swipe");
+          return "right";
+        } else if (diff < -50) {
+          console.log("left swipe");
+          return "left";
+        }
+      }
+    </script>
+  </body>
+</html>
